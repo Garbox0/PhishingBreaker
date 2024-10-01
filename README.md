@@ -17,5 +17,6 @@ PhishingBreaker es una herramienta de análisis de seguridad diseñada para ayud
    ```bash
    git clone https://github.com/PhishingBreaker.git
    cd PhishingBreaker
-   ./PhishingBreaker
+   chmod +x PhishingBreaker.sh
+   ./PhishingBreaker.sh
    ```
