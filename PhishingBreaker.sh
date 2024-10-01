@@ -145,20 +145,36 @@ function menu_principal() {
         1) 
             seleccionar_servicio
             read -p "Ingresa la ruta del archivo de correo: " archivo
-            analizar_url "$archivo"
-            verificar_remitente "$archivo"
+            if [[ -f "$archivo" ]]; then
+                analizar_url "$archivo"
+                verificar_remitente "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
             ;;
         2) 
             read -p "Ingresa la ruta del directorio a escanear: " directorio
-            escanear_directorio "$directorio"
+            if [[ -d "$directorio" ]]; then
+                escanear_directorio "$directorio"
+            else
+                echo "Error: El directorio especificado no existe."
+            fi
             ;;
         3) 
             read -p "Ingresa la ruta del archivo de correo: " archivo
-            analizar_con_spamassassin "$archivo"
+            if [[ -f "$archivo" ]]; then
+                analizar_con_spamassassin "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
             ;;
         4)
             read -p "Ingresa la ruta del archivo adjunto: " archivo
-            escanear_con_clamav "$archivo"
+            if [[ -f "$archivo" ]]; then
+                escanear_con_clamav "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
             ;;
         5) 
             mostrar_consejos
