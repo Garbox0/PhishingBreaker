@@ -135,7 +135,10 @@ function seleccionar_servicio() {
 
 function menu_principal() {
     clear
-    echo "========== PhishingBreaker ==========="
+    echo "=====================" 
+    figlet  "PhishingBreaker"
+    echo                "by GarboX0" 
+    echo "====================="
     echo "1. Analizar un correo electrónico"
     echo "2. Escanear un directorio completo"
     echo "3. Escanear con SpamAssassin"
