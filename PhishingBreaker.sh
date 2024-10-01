@@ -61,6 +61,7 @@ function mostrar_consejos() {
     echo "2. Verifica siempre la URL antes de introducir información personal."
     echo "3. Desconfía de correos que te pidan actuar de forma urgente."
     echo "4. Nunca compartas información confidencial a través de enlaces sospechosos."
+    read -p "Presiona Enter para continuar..."
 }
 
 function escanear_directorio() {
