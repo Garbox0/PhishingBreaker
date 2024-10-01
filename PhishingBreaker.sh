@@ -1,6 +1,9 @@
 #!/bin/bash
 
 function instalar_dependencias() {
+    echo "Actualizando la lista de paquetes..."
+    sudo apt update
+
     echo "Verificando y instalando dependencias necesarias..."
     paquetes=("spamassassin" "clamav" "notify-osd" "exiftool")
 
