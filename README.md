@@ -1,3 +1,4 @@
+# In Progress
 # PhishingBreaker
 
 PhishingBreaker es una herramienta de análisis de seguridad diseñada para ayudar a los usuarios a identificar correos electrónicos y mensajes sospechosos que pueden contener intentos de phishing. Esta aplicación de línea de comandos en Bash permite a los usuarios escanear correos, verificar remitentes y obtener consejos para prevenir ataques de phishing.
