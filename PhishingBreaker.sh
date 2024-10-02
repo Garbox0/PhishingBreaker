@@ -28,21 +28,18 @@ function instalar_dependencias() {
 function seleccionar_archivo() {
     local archivo_seleccionado=$(dialog --stdout --title "Seleccionar archivo" --fselect $HOME/ 14 48)
     if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
-        echo "Has seleccionado el archivo: $archivo_seleccionado"
-        analizar_url "$archivo_seleccionado"
-        verificar_remitente "$archivo_seleccionado"
+        echo "$archivo_seleccionado"
     else
-        echo "No se ha seleccionado un archivo válido."
+        echo ""
     fi
 }
 
 function seleccionar_directorio() {
     local directorio_seleccionado=$(dialog --stdout --title "Seleccionar directorio" --dselect $HOME/ 14 48)
     if [ -n "$directorio_seleccionado" ] && [ -d "$directorio_seleccionado" ]; then
-        echo "Has seleccionado el directorio: $directorio_seleccionado"
-        escanear_directorio "$directorio_seleccionado"
+        echo "$directorio_seleccionado"
     else
-        echo "No se ha seleccionado un directorio válido."
+        echo ""
     fi
 }
 
@@ -105,30 +102,9 @@ function mostrar_consejos() {
     read -p "Presiona Enter para continuar..."
 }
 
-function seleccionar_archivo_para_spamassassin() {
-    local archivo_seleccionado=$(dialog --stdout --title "Seleccionar archivo para SpamAssassin" --fselect $HOME/ 14 48)
-    if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
-        analizar_con_spamassassin "$archivo_seleccionado"
-    else
-        echo "No se ha seleccionado un archivo válido."
-    fi
-}
-
-function seleccionar_archivo_para_clamav() {
-    local archivo_seleccionado=$(dialog --stdout --title "Seleccionar archivo para ClamAV" --fselect $HOME/ 14 48)
-    if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
-        escanear_con_clamav "$archivo_seleccionado"
-    else
-        echo "No se ha seleccionado un archivo válido."
-    fi
-}
-
 function menu_principal() {
     clear
-    echo "====================="
-    figlet  "PhishingBreaker"
-    echo "by GarboX0"
-    echo "====================="
+    echo "========== PhishingBreaker ==========="
     echo "1. Analizar un correo electrónico"
     echo "2. Escanear un directorio completo"
     echo "3. Escanear con SpamAssassin"
@@ -139,25 +115,47 @@ function menu_principal() {
     read -p "Selecciona una opción: " opcion
 
     case $opcion in
-        1)
-            seleccionar_archivo
+        1) 
+            seleccionar_servicio
+            archivo=$(seleccionar_archivo)
+            if [[ -f "$archivo" ]]; then
+                analizar_url "$archivo"
+                verificar_remitente "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
             ;;
-        2)
-            seleccionar_directorio
+        2) 
+            directorio=$(seleccionar_directorio)
+            if [[ -d "$directorio" ]]; then
+                escanear_directorio "$directorio"
+            else
+                echo "Error: El directorio especificado no existe."
+            fi
             ;;
-        3)
-            seleccionar_archivo_para_spamassassin
+        3) 
+            archivo=$(seleccionar_archivo)
+            if [[ -f "$archivo" ]]; then
+                analizar_con_spamassassin "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
             ;;
         4)
-            seleccionar_archivo_para_clamav
+            archivo=$(seleccionar_archivo)
+            if [[ -f "$archivo" ]]; then
+                escanear_con_clamav "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
             ;;
-        5)
+        5) 
             mostrar_consejos
             ;;
         6)
             exit 0
             ;;
-        *)
+        *) 
             echo "Opción inválida. Por favor, selecciona una opción válida."
             ;;
     esac
