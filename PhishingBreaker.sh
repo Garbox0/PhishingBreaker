@@ -105,6 +105,24 @@ function mostrar_consejos() {
     read -p "Presiona Enter para continuar..."
 }
 
+function seleccionar_archivo_para_spamassassin() {
+    local archivo_seleccionado=$(dialog --stdout --title "Seleccionar archivo para SpamAssassin" --fselect $HOME/ 14 48)
+    if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
+        analizar_con_spamassassin "$archivo_seleccionado"
+    else
+        echo "No se ha seleccionado un archivo válido."
+    fi
+}
+
+function seleccionar_archivo_para_clamav() {
+    local archivo_seleccionado=$(dialog --stdout --title "Seleccionar archivo para ClamAV" --fselect $HOME/ 14 48)
+    if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
+        escanear_con_clamav "$archivo_seleccionado"
+    else
+        echo "No se ha seleccionado un archivo válido."
+    fi
+}
+
 function menu_principal() {
     clear
     echo "====================="
