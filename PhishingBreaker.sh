@@ -139,8 +139,9 @@ function menu_principal() {
     echo "2. Escanear un directorio completo"
     echo "3. Escanear con rspamd"
     echo "4. Escanear con MailScanner"
-    echo "5. Mostrar consejos sobre phishing"
-    echo "6. Salir"
+    echo "5. Comprobar dependencias" 
+    echo "6. Mostrar consejos sobre phishing"
+    echo "7. Salir"
     echo "======================================"
     read -p "Selecciona una opción: " opcion
 
@@ -180,15 +181,33 @@ function menu_principal() {
             fi
             ;;
         5) 
+            comprobar_dependencias  # Llama a la función de comprobación
+            ;;
+        6) 
             mostrar_consejos
             ;;
-        6)
+        7)
             exit 0
             ;;
         *) 
             echo "Opción inválida. Por favor, selecciona una opción válida."
             ;;
     esac
+}
+
+function comprobar_dependencias() {
+    echo "Comprobando dependencias..."
+    paquetes=("rspamd" "mailscanner" "notify-osd" "exiftool" "dialog")
+    
+    for paquete in "${paquetes[@]}"; do
+        if dpkg -l | grep -q "$paquete"; then
+            echo "$paquete está instalado."
+        else
+            echo "Error: $paquete no está instalado."
+        fi
+    done
+    
+    read -p "Presiona Enter para continuar..."
 }
 
 instalar_dependencias
