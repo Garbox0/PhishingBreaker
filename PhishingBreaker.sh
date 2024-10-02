@@ -3,37 +3,21 @@
 function instalar_dependencias() {
     echo "Actualizando la lista de paquetes..."
     sudo apt update
+
     echo "Verificando e instalando dependencias necesarias..."
-    paquetes=("spamassassin" "clamav" "notify-osd" "exiftool" "dialog")
-    herramientas_afectadas=("Análisis de correos con SpamAssassin" "Escaneo de archivos adjuntos con ClamAV" "Notificaciones de alertas" "Análisis de metadatos con ExifTool" "Selección de archivos y directorios")
+    paquetes=("rspamd" "mailscanner" "notify-osd" "exiftool" "dialog")
     
-    for i in "${!paquetes[@]}"; do
-        paquete="${paquetes[$i]}"
-        herramienta_afectada="${herramientas_afectadas[$i]}"
-        
+    for paquete in "${paquetes[@]}"; do
         if ! dpkg -l | grep -q "$paquete"; then
             echo "Instalando $paquete..."
             if sudo apt install -y "$paquete"; then
                 echo "$paquete instalado correctamente."
             else
                 echo "Error: No se pudo instalar $paquete."
-                echo "Advertencia: Tendrás problemas con la funcionalidad: $herramienta_afectada." >> logs/error_log.txt
+                echo "Advertencia: Tendrás problemas con la funcionalidad de $paquete." >> logs/error_log.txt
             fi
         else
             echo "$paquete ya está instalado."
-        fi
-    done
-}
-
-function comprobar_dependencias() {
-    echo "Comprobando dependencias..."
-    paquetes=("spamassassin" "clamav" "notify-osd" "exiftool" "dialog")
-    
-    for paquete in "${paquetes[@]}"; do
-        if ! dpkg -l | grep -q "$paquete"; then
-            echo "Error: $paquete no está instalado."
-        else
-            echo "$paquete está instalado."
         fi
     done
 }
@@ -42,7 +26,8 @@ function crear_directorios_logs() {
     mkdir -p logs/analisis_urls
     mkdir -p logs/verificacion_remitentes
     mkdir -p logs/spamassassin
-    mkdir -p logs/clamav
+    mkdir -p logs/rspamd
+    mkdir -p logs/mailscanner
     mkdir -p logs/error_log
 }
 
@@ -120,29 +105,27 @@ function escanear_directorio() {
     done
 }
 
-function analizar_con_spamassassin() {
+function analizar_con_rspamd() {
     local archivo=$1
-    echo "Analizando el archivo con SpamAssassin: $archivo"
-    spamassassin "$archivo" > "logs/spamassassin/resultado_spamassassin.txt"
+    echo "Analizando el archivo con rspamd: $archivo"
+    rspamc -h localhost < "$archivo" > "logs/rspamd/resultado_rspamd.txt"
 
-    if grep -q "X-Spam-Status: Yes" "logs/spamassassin/resultado_spamassassin.txt"; then
-        echo "¡Alerta! El correo ha sido marcado como SPAM/PHISHING."
-        enviar_alerta "El correo ha sido marcado como SPAM/PHISHING."
+    if grep -q "spam" "logs/rspamd/resultado_rspamd.txt"; then
+        enviar_alerta "El correo ha sido marcado como SPAM/PHISHING por rspamd."
     else
-        echo "El correo parece seguro."
+        echo "El correo parece seguro según rspamd."
     fi
 }
 
-function escanear_con_clamav() {
+function analizar_con_mailscanner() {
     local archivo=$1
-    echo "Escaneando archivo adjunto con ClamAV: $archivo"
-    clamscan "$archivo" > "logs/clamav/resultado_clamav.txt"
+    echo "Analizando el archivo con MailScanner: $archivo"
+    mailscanner "$archivo" > "logs/mailscanner/resultado_mailscanner.txt"
 
-    if grep -q "Infected files: 0" "logs/clamav/resultado_clamav.txt"; then
-        echo "El archivo está limpio."
+    if grep -q "Spam detected" "logs/mailscanner/resultado_mailscanner.txt"; then
+        enviar_alerta "El correo ha sido marcado como SPAM/PHISHING por MailScanner."
     else
-        echo "¡Alerta! Se detectó malware en el archivo."
-        enviar_alerta "Se detectó malware en el archivo adjunto."
+        echo "El correo parece seguro según MailScanner."
     fi
 }
 
@@ -154,11 +137,10 @@ function menu_principal() {
     echo "====================="
     echo "1. Analizar un correo electrónico"
     echo "2. Escanear un directorio completo"
-    echo "3. Escanear con SpamAssassin"
-    echo "4. Escanear con ClamAV"
-    echo "5. Comprobar dependencias"
-    echo "6. Mostrar consejos sobre phishing"
-    echo "7. Salir"
+    echo "3. Escanear con rspamd"
+    echo "4. Escanear con MailScanner"
+    echo "5. Mostrar consejos sobre phishing"
+    echo "6. Salir"
     echo "======================================"
     read -p "Selecciona una opción: " opcion
 
@@ -184,7 +166,7 @@ function menu_principal() {
         3) 
             archivo=$(seleccionar_archivo)
             if [[ -f "$archivo" ]]; then
-                analizar_con_spamassassin "$archivo"
+                analizar_con_rspamd "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
             fi
@@ -192,40 +174,21 @@ function menu_principal() {
         4)
             archivo=$(seleccionar_archivo)
             if [[ -f "$archivo" ]]; then
-                escanear_con_clamav "$archivo"
+                analizar_con_mailscanner "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
             fi
             ;;
-        5)
-            comprobar_dependencias
-            ;;
-        6) 
+        5) 
             mostrar_consejos
             ;;
-        7)
+        6)
             exit 0
             ;;
         *) 
             echo "Opción inválida. Por favor, selecciona una opción válida."
             ;;
     esac
-}
-
-function comprobar_dependencias() {
-    echo "Comprobando dependencias..."
-    paquetes=("spamassassin" "clamav" "notify-osd" "exiftool" "dialog")
-    echo "Dependencias instaladas:"
-    
-    for paquete in "${paquetes[@]}"; do
-        if dpkg -l | grep -q "$paquete"; then
-            echo "$paquete está instalado."
-        else
-            echo "Error: $paquete no está instalado."
-        fi
-    done
-    
-    read -p "Presiona Enter para continuar..."
 }
 
 instalar_dependencias
