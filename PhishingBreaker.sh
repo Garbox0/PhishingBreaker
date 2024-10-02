@@ -5,8 +5,8 @@ function instalar_dependencias() {
     sudo apt update
 
     echo "Verificando e instalando dependencias necesarias..."
-    paquetes=("spamassassin" "clamav" "notify-osd" "exiftool")
-    herramientas_afectadas=("Análisis de correos con SpamAssassin" "Escaneo de archivos adjuntos con ClamAV" "Notificaciones de alertas" "Análisis de metadatos con ExifTool")
+    paquetes=("spamassassin" "clamav" "notify-osd" "exiftool" "dialog")
+    herramientas_afectadas=("Análisis de correos con SpamAssassin" "Escaneo de archivos adjuntos con ClamAV" "Notificaciones de alertas" "Análisis de metadatos con ExifTool" "Seleccion de medios")
 
     for i in "${!paquetes[@]}"; do
         paquete="${paquetes[$i]}"
