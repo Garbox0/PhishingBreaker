@@ -224,6 +224,8 @@ function comprobar_dependencias() {
             echo "Error: $paquete no está instalado."
         fi
     done
+    
+    read -p "Presiona Enter para continuar..."
 }
 
 instalar_dependencias
