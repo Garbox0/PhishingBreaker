@@ -5,7 +5,7 @@ function instalar_dependencias() {
     sudo apt update
 
     echo "Verificando e instalando dependencias necesarias..."
-    paquetes=("rspamd" "mailscanner" "notify-osd" "exiftool" "dialog")
+    paquetes=("rspamd" "notify-osd" "dialog")
     
     for paquete in "${paquetes[@]}"; do
         if ! dpkg -l | grep -q "$paquete"; then
@@ -20,7 +20,55 @@ function instalar_dependencias() {
             echo "$paquete ya está instalado."
         fi
     done
+
+    if ! dpkg -l | grep -q "rspamd"; then
+        echo "Instalando rspamd..."
+        CODENAME=$(lsb_release -c -s)
+        sudo apt-get install -y lsb-release wget gpg
+        sudo mkdir -p /etc/apt/keyrings
+        wget -O- https://rspamd.com/apt-stable/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/rspamd.gpg > /dev/null
+        echo "deb [signed-by=/etc/apt/keyrings/rspamd.gpg] http://rspamd.com/apt-stable/ $CODENAME main" | sudo tee /etc/apt/sources.list.d/rspamd.list
+        sudo apt-get update
+        if sudo apt-get --no-install-recommends install rspamd; then
+            echo "rspamd instalado correctamente."
+        else
+            echo "Error: No se pudo instalar rspamd." >> logs/error_log.txt
+        fi
+    else
+        echo "rspamd ya está instalado."
+    fi
+
+    if ! dpkg -l | grep -q "mailscanner"; then
+        echo "Instalando MailScanner..."
+        wget https://downloads.mailscanner.info/MailScanner-latest.deb -O /tmp/MailScanner.deb
+        
+        if sudo dpkg -i /tmp/MailScanner.deb; then
+            echo "MailScanner instalado correctamente."
+            sudo /usr/sbin/ms-configure
+        else
+            echo "Error: No se pudo instalar MailScanner." >> logs/error_log.txt
+        fi
+    else
+        echo "MailScanner ya está instalado."
+    fi
+
+    if ! command -v exiftool &> /dev/null; then
+        echo "Instalando ExifTool desde la fuente..."
+        cd /tmp
+        wget https://exiftool.org/Image-ExifTool-12.97.tar.gz -O Image-ExifTool.tar.gz
+        tar -xzf Image-ExifTool.tar.gz
+        cd Image-ExifTool-12.97
+
+        if perl Makefile.PL && make test && sudo make install; then
+            echo "ExifTool instalado correctamente."
+        else
+            echo "Error: No se pudo instalar ExifTool." >> logs/error_log.txt
+        fi
+    else
+        echo "ExifTool ya está instalado."
+    fi
 }
+
 
 function crear_directorios_logs() {
     mkdir -p logs/analisis_urls
