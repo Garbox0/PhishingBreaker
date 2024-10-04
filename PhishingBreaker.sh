@@ -221,8 +221,7 @@ function menu_principal() {
 
     case $opcion in
         1) 
-            seleccionar_servicio
-            archivo=$(seleccionar_archivo)
+            archivo=$(seleccionar_archivo)  # Eliminé seleccionar_servicio
             if [[ -f "$archivo" ]]; then
                 analizar_url "$archivo"
                 verificar_remitente "$archivo"
