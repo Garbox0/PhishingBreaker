@@ -248,7 +248,7 @@ function menu_principal() {
             ;;
         4)
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; entonces
+            if [[ -f "$archivo" ]]; then
                 analizar_con_mailscanner "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
