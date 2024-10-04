@@ -309,7 +309,7 @@ function submenu_rspamd() {
     case $opcion in
         1)
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; entonces
+            if [[ -f "$archivo" ]]; then
                 analizar_con_rspamd "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
@@ -338,7 +338,7 @@ function submenu_mailscanner() {
     case $opcion in
         1)
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; entonces
+            if [[ -f "$archivo" ]]; then
                 analizar_con_mailscanner "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
