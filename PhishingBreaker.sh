@@ -40,11 +40,13 @@ function instalar_dependencias() {
 
     if ! dpkg -l | grep -q "mailscanner"; then
         echo "Instalando MailScanner..."
+
         wget https://downloads.mailscanner.info/MailScanner-latest.deb -O /tmp/MailScanner.deb
         
         if sudo dpkg -i /tmp/MailScanner.deb; then
             echo "MailScanner instalado correctamente."
-            sudo /usr/sbin/ms-configure
+            
+            sudo /usr/sbin/ms-configure --update
         else
             echo "Error: No se pudo instalar MailScanner." >> logs/error_log.txt
         fi
@@ -220,54 +222,134 @@ function menu_principal() {
     read -p "Selecciona una opción: " opcion
 
     case $opcion in
+        1) submenu_analisis_correo ;;
+        2) submenu_escanear_directorio ;;
+        3) submenu_rspamd ;;
+        4) submenu_mailscanner ;;
+        5) comprobar_dependencias ;;
+        6) mostrar_consejos ;;
+        7) desinstalar_aplicacion ;;
+        8) exit 0 ;;
+        *) echo "Opción inválida!" && sleep 2 && menu_principal ;;
+    esac
+}
+
+function submenu_analisis_correo() {
+    clear
+    echo "====================="
+    echo "   Análisis de Correo Electrónico"
+    echo "====================="
+    echo "1. Analizar URL en el correo"
+    echo "2. Verificar remitente"
+    echo "3. Volver al Menú Principal"
+    echo ""
+    read -p "Selecciona una opción: " opcion
+
+    case $opcion in
         1) 
-            archivo=$(seleccionar_archivo)  # Eliminé seleccionar_servicio
+            archivo=$(seleccionar_archivo)
             if [[ -f "$archivo" ]]; then
                 analizar_url "$archivo"
+            else
+                echo "Error: El archivo especificado no existe."
+            fi
+            read -p "Presiona Enter para continuar..." && submenu_analisis_correo ;;
+        2) 
+            archivo=$(seleccionar_archivo)
+            if [[ -f "$archivo" ]]; then
                 verificar_remitente "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
             fi
-            ;;
-        2) 
+            read -p "Presiona Enter para continuar..." && submenu_analisis_correo ;;
+        3) menu_principal ;;
+        *) echo "Opción inválida!" && sleep 2 && submenu_analisis_correo ;;
+    esac
+}
+
+function submenu_escanear_directorio() {
+    clear
+    echo "====================="
+    echo "   Escaneo de Directorio"
+    echo "====================="
+    echo "1. Escanear con ClamAV"
+    echo "2. Escanear con otra herramienta"
+    echo "3. Volver al Menú Principal"
+    echo ""
+    read -p "Selecciona una opción: " opcion
+
+    case $opcion in
+        1)
             directorio=$(seleccionar_directorio)
             if [[ -d "$directorio" ]]; then
-                escanear_directorio "$directorio"
+                escanear_con_clamav "$directorio"
             else
                 echo "Error: El directorio especificado no existe."
             fi
-            ;;
-        3) 
+            read -p "Presiona Enter para continuar..." && submenu_escanear_directorio ;;
+        2)
+            echo "Opción no implementada todavía."
+            read -p "Presiona Enter para continuar..." && submenu_escanear_directorio ;;
+        3) menu_principal ;;
+        *) echo "Opción inválida!" && sleep 2 && submenu_escanear_directorio ;;
+    esac
+}
+
+function submenu_rspamd() {
+    clear
+    echo "====================="
+    echo "   Escaneo con rspamd"
+    echo "====================="
+    echo "1. Analizar un correo"
+    echo "2. Verificar el estado del servicio"
+    echo "3. Volver al Menú Principal"
+    echo ""
+    read -p "Selecciona una opción: " opcion
+
+    case $opcion in
+        1)
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; then
+            if [[ -f "$archivo" ]]; entonces
                 analizar_con_rspamd "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
             fi
-            ;;
-        4)
+            read -p "Presiona Enter para continuar..." && submenu_rspamd ;;
+        2)
+            echo "Verificando el estado de rspamd..."
+            sudo systemctl status rspamd
+            read -p "Presiona Enter para continuar..." && submenu_rspamd ;;
+        3) menu_principal ;;
+        *) echo "Opción inválida!" && sleep 2 && submenu_rspamd ;;
+    esac
+}
+
+function submenu_mailscanner() {
+    clear
+    echo "====================="
+    echo "   Escaneo con MailScanner"
+    echo "====================="
+    echo "1. Analizar un correo"
+    echo "2. Verificar el estado del servicio"
+    echo "3. Volver al Menú Principal"
+    echo ""
+    read -p "Selecciona una opción: " opcion
+
+    case $opcion in
+        1)
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; then
+            if [[ -f "$archivo" ]]; entonces
                 analizar_con_mailscanner "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
             fi
-            ;;
-        5)
-            comprobar_dependencias
-            ;;
-        6) 
-            mostrar_consejos
-            ;;
-        7)
-            desinstalar_aplicacion
-            ;;
-        8)
-            exit 0
-            ;;
-        *) 
-            echo "Opción inválida. Por favor, selecciona una opción válida."
-            ;;
+            read -p "Presiona Enter para continuar..." && submenu_mailscanner ;;
+        2)
+            echo "Verificando el estado de MailScanner..."
+            sudo systemctl status mailscanner
+            read -p "Presiona Enter para continuar..." && submenu_mailscanner ;;
+        3) menu_principal ;;
+        *) echo "Opción inválida!" && sleep 2 && submenu_mailscanner ;;
     esac
 }
 
