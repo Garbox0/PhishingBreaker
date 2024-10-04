@@ -69,6 +69,31 @@ function instalar_dependencias() {
     fi
 }
 
+function desinstalar_aplicacion() {
+    echo "¿Estás seguro de que deseas desinstalar PhishingBreaker y eliminar todas las dependencias? [s/n]"
+    read -p "Opción: " confirmar
+
+    if [[ "$confirmar" == "s" ]]; then
+        echo "Desinstalando PhishingBreaker..."
+
+        echo "Eliminando archivos de configuración y logs..."
+        sudo rm -rf /etc/PhishingBreaker
+        sudo rm -rf logs/
+
+        echo "Eliminando dependencias instaladas..."
+        paquetes=("rspamd" "mailscanner" "notify-osd" "exiftool" "dialog")
+        for paquete in "${paquetes[@]}"; do
+            if dpkg -l | grep -q "$paquete"; then
+                echo "Desinstalando $paquete..."
+                sudo apt remove --purge -y "$paquete"
+            fi
+        done
+
+        echo "PhishingBreaker y sus dependencias han sido desinstalados correctamente."
+    else
+        echo "Desinstalación cancelada."
+    fi
+}
 
 function crear_directorios_logs() {
     mkdir -p logs/analisis_urls
@@ -187,9 +212,10 @@ function menu_principal() {
     echo "2. Escanear un directorio completo"
     echo "3. Escanear con rspamd"
     echo "4. Escanear con MailScanner"
-    echo "5. Comprobar dependencias" 
+    echo "5. Comprobar dependencias"
     echo "6. Mostrar consejos sobre phishing"
-    echo "7. Salir"
+    echo "7. Desinstalar PhishingBreaker"
+    echo "8. Salir"
     echo "======================================"
     read -p "Selecciona una opción: " opcion
 
@@ -222,19 +248,22 @@ function menu_principal() {
             ;;
         4)
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; then
+            if [[ -f "$archivo" ]]; entonces
                 analizar_con_mailscanner "$archivo"
             else
                 echo "Error: El archivo especificado no existe."
             fi
             ;;
-        5) 
-            comprobar_dependencias  # Llama a la función de comprobación
+        5)
+            comprobar_dependencias
             ;;
         6) 
             mostrar_consejos
             ;;
         7)
+            desinstalar_aplicacion
+            ;;
+        8)
             exit 0
             ;;
         *) 
