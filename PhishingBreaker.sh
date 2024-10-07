@@ -6,7 +6,7 @@ function instalar_dependencias() {
 
     echo "Verificando e instalando dependencias necesarias..."
     paquetes=("rspamd" "notify-osd" "dialog")
-    
+
     for paquete in "${paquetes[@]}"; do
         if ! dpkg -l | grep -q "$paquete"; then
             echo "Instalando $paquete..."
@@ -15,6 +15,7 @@ function instalar_dependencias() {
             else
                 echo "Error: No se pudo instalar $paquete."
                 echo "Advertencia: Tendrás problemas con la funcionalidad de $paquete." >> logs/error_log.txt
+                sudo apt-get -f install
             fi
         else
             echo "$paquete ya está instalado."
@@ -33,6 +34,7 @@ function instalar_dependencias() {
             echo "rspamd instalado correctamente."
         else
             echo "Error: No se pudo instalar rspamd." >> logs/error_log.txt
+            sudo apt-get -f install
         fi
     else
         echo "rspamd ya está instalado."
@@ -40,15 +42,14 @@ function instalar_dependencias() {
 
     if ! dpkg -l | grep -q "mailscanner"; then
         echo "Instalando MailScanner..."
-
         wget https://downloads.mailscanner.info/MailScanner-latest.deb -O /tmp/MailScanner.deb
-        
+
         if sudo dpkg -i /tmp/MailScanner.deb; then
             echo "MailScanner instalado correctamente."
-            
             sudo /usr/sbin/ms-configure --update
         else
             echo "Error: No se pudo instalar MailScanner." >> logs/error_log.txt
+            sudo apt-get -f install
         fi
     else
         echo "MailScanner ya está instalado."
