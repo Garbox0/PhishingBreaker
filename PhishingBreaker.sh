@@ -93,7 +93,7 @@ function crear_directorios_logs() {
 }
 
 function seleccionar_archivo() {
-    local archivo_seleccionado=$(whiptail --title "Seleccionar archivo" --fselect $HOME/ 14 48 3>&1 1>&2 2>&3)
+    local archivo_seleccionado=$(whiptail --stdout --title "Seleccionar archivo" --fselect "$HOME/" 14 48)
     if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
         echo "$archivo_seleccionado"
     else
@@ -234,18 +234,18 @@ function submenu_analisis_correo() {
     case $opcion in
         1) 
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; then
+            if [[ -n "$archivo" ]]; then
                 analizar_url "$archivo"
             else
-                echo "Error: El archivo especificado no existe."
+                echo "Error: No se seleccionó un archivo."
             fi
             read -p "Presiona Enter para continuar..." && submenu_analisis_correo ;;
         2) 
             archivo=$(seleccionar_archivo)
-            if [[ -f "$archivo" ]]; then
+            if [[ -n "$archivo" ]]; then
                 verificar_remitente "$archivo"
             else
-                echo "Error: El archivo especificado no existe."
+                echo "Error: No se seleccionó un archivo."
             fi
             read -p "Presiona Enter para continuar..." && submenu_analisis_correo ;;
         3) menu_principal ;;
