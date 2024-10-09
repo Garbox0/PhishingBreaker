@@ -5,7 +5,7 @@ function instalar_dependencias() {
     sudo apt update
 
     echo "Verificando e instalando dependencias necesarias..."
-    paquetes=("rspamd" "notify-osd" "dialog")
+    paquetes=("rspamd" "notify-osd" "dialog" "amavisd-new" "spamassassin" "clamav")
 
     for paquete in "${paquetes[@]}"; do
         if ! dpkg -l | grep -q "$paquete"; then
@@ -40,19 +40,16 @@ function instalar_dependencias() {
         echo "rspamd ya está instalado."
     fi
 
-    if ! dpkg -l | grep -q "mailscanner"; then
-        echo "Instalando MailScanner..."
-        wget https://downloads.mailscanner.info/MailScanner-latest.deb -O /tmp/MailScanner.deb
-
-        if sudo dpkg -i /tmp/MailScanner.deb; then
-            echo "MailScanner instalado correctamente."
-            sudo /usr/sbin/ms-configure --update
+    if ! dpkg -l | grep -q "amavisd-new"; then
+        echo "Instalando Amavis..."
+        if sudo apt-get install amavisd-new spamassassin clamav; then
+            echo "Amavis y herramientas asociadas instaladas correctamente."
         else
-            echo "Error: No se pudo instalar MailScanner." >> logs/error_log.txt
+            echo "Error: No se pudo instalar Amavis y las herramientas asociadas." >> logs/error_log.txt
             sudo apt-get -f install
         fi
     else
-        echo "MailScanner ya está instalado."
+        echo "Amavis ya está instalado."
     fi
 
     if ! command -v exiftool &> /dev/null; then
@@ -84,7 +81,7 @@ function desinstalar_aplicacion() {
         sudo rm -rf logs/
 
         echo "Eliminando dependencias instaladas..."
-        paquetes=("rspamd" "mailscanner" "notify-osd" "exiftool" "dialog")
+        paquetes=("rspamd" "amavisd-new" "spamassassin" "clamav" "notify-osd" "exiftool" "dialog")
         for paquete in "${paquetes[@]}"; do
             if dpkg -l | grep -q "$paquete"; then
                 echo "Desinstalando $paquete..."
@@ -103,7 +100,7 @@ function crear_directorios_logs() {
     mkdir -p logs/verificacion_remitentes
     mkdir -p logs/spamassassin
     mkdir -p logs/rspamd
-    mkdir -p logs/mailscanner
+    mkdir -p logs/amavis
     mkdir -p logs/error_log
 }
 
