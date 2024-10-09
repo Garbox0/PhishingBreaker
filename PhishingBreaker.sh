@@ -5,7 +5,7 @@ function instalar_dependencias() {
     sudo apt update
 
     echo "Verificando e instalando dependencias necesarias..."
-    paquetes=("rspamd" "notify-osd" "dialog" "amavisd-new" "spamassassin" "clamav")
+    paquetes=("rspamd" "notify-osd" "whiptail" "amavisd-new" "spamassassin" "clamav")
 
     for paquete in "${paquetes[@]}"; do
         if ! dpkg -l | grep -q "$paquete"; then
@@ -21,7 +21,6 @@ function instalar_dependencias() {
             echo "$paquete ya está instalado."
         fi
     done
-}
 
     if ! dpkg -l | grep -q "rspamd"; then
         echo "Instalando rspamd..."
@@ -39,18 +38,6 @@ function instalar_dependencias() {
         fi
     else
         echo "rspamd ya está instalado."
-    fi
-
-    if ! dpkg -l | grep -q "amavisd-new"; then
-        echo "Instalando Amavis..."
-        if sudo apt-get install amavisd-new spamassassin clamav; then
-            echo "Amavis y herramientas asociadas instaladas correctamente."
-        else
-            echo "Error: No se pudo instalar Amavis y las herramientas asociadas." >> logs/error_log.txt
-            sudo apt-get -f install
-        fi
-    else
-        echo "Amavis ya está instalado."
     fi
 
     if ! command -v exiftool &> /dev/null; then
@@ -82,7 +69,7 @@ function desinstalar_aplicacion() {
         sudo rm -rf logs/
 
         echo "Eliminando dependencias instaladas..."
-        paquetes=("rspamd" "amavisd-new" "spamassassin" "clamav" "notify-osd" "exiftool" "dialog")
+        paquetes=("rspamd" "amavisd-new" "spamassassin" "clamav" "notify-osd" "exiftool")
         for paquete in "${paquetes[@]}"; do
             if dpkg -l | grep -q "$paquete"; then
                 echo "Desinstalando $paquete..."
@@ -106,7 +93,7 @@ function crear_directorios_logs() {
 }
 
 function seleccionar_archivo() {
-    local archivo_seleccionado=$(dialog --stdout --title "Seleccionar archivo" --fselect $HOME/ 14 48)
+    local archivo_seleccionado=$(whiptail --stdout --title "Seleccionar archivo" --fselect $HOME/ 14 48)
     if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
         echo "$archivo_seleccionado"
     else
@@ -115,7 +102,7 @@ function seleccionar_archivo() {
 }
 
 function seleccionar_directorio() {
-    local directorio_seleccionado=$(dialog --stdout --title "Seleccionar directorio" --dselect $HOME/ 14 48)
+    local directorio_seleccionado=$(whiptail --stdout --title "Seleccionar directorio" --dselect $HOME/ 14 48)
     if [ -n "$directorio_seleccionado" ] && [ -d "$directorio_seleccionado" ]; then
         echo "$directorio_seleccionado"
     else
