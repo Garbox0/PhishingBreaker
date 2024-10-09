@@ -93,7 +93,7 @@ function crear_directorios_logs() {
 }
 
 function seleccionar_archivo() {
-    local archivo_seleccionado=$(whiptail --stdout --title "Seleccionar archivo" --fselect $HOME/ 14 48)
+    local archivo_seleccionado=$(whiptail --title "Seleccionar archivo" --fselect $HOME/ 14 48 3>&1 1>&2 2>&3)
     if [ -n "$archivo_seleccionado" ] && [ -f "$archivo_seleccionado" ]; then
         echo "$archivo_seleccionado"
     else
