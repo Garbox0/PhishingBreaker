@@ -21,6 +21,7 @@ function instalar_dependencias() {
             echo "$paquete ya está instalado."
         fi
     done
+}
 
     if ! dpkg -l | grep -q "rspamd"; then
         echo "Instalando rspamd..."
