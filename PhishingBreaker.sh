@@ -353,17 +353,18 @@ function submenu_mailscanner() {
 
 function comprobar_dependencias() {
     echo "Comprobando dependencias..."
-    paquetes=("rspamd" "mailscanner" "notify-osd" "exiftool" "dialog")
-    
+    paquetes=("rspamd" "notify-osd" "dialog" "exiftool" "amavisd-new" "spamassassin" "clamav")
+
     for paquete in "${paquetes[@]}"; do
-        if dpkg -l | grep -q "$paquete"; then
-            echo "$paquete está instalado."
-        else
+        if ! dpkg -l | grep -q "$paquete"; then
             echo "Error: $paquete no está instalado."
+        else
+            echo "$paquete está instalado."
         fi
     done
-    
-    read -p "Presiona Enter para continuar..."
+
+    echo "Presiona Enter para continuar..."
+    read
 }
 
 instalar_dependencias
